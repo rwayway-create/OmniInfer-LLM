@@ -1,4 +1,26 @@
-# OmniInfer-LLM
+<p align="center">
+  <picture>
+    <img alt="OmniInfer" src="./assets/OmniInfer-LLM-logo.png" width="60%">
+  </picture>
+</p>
+
+<h3 align="center">
+High-Performance, On-Device VLM Inference with Hybrid NPU Acceleration
+</h3>
+
+<p align="center">
+| 
+<a href="#android-demo--architecture"><b>Demo</b></a> 
+| 
+<a href="#Performance"><b>Performance</b></a> 
+| 
+<a href="#supported-models"><b>Models</b></a> 
+| 
+<a href="#quick-start"><b>Quick Start</b></a> 
+| 
+<a href="https://github.com/omnimind-ai/OmniInfer-LLM/issues"><b>Issues</b></a> 
+|
+</p>
 
 **OmniInfer-LLM** is the **central orchestrator repository** for deploying **end-to-end Visual Language Model (VLM)** inference on mobile devices using a **hybrid NPU acceleration strategy**.
 
@@ -43,6 +65,18 @@ To balance these needs effectively, OmniInfer-LLM uses:
 - **OmniInfer-NPU** shared library of optimized NPU operators
 
 This hybrid approach enables efficient, production-ready VLM inference on real mobile devices.
+
+------
+
+## Performance Comparison
+
+OmniInfer-LLM sets a new benchmark for on-device VLM inference. Compared to existing frameworks like llama.cpp, MNN, and PowerServe, OmniInfer provides significant advantages in latency and throughput.
+
+<p align="center">
+  <picture>
+    <img alt="OmniInfer" src="./assets/performance_comparison.png" width="80%">
+  </picture>
+</p>
 
 ------
 
@@ -174,3 +208,26 @@ This project is licensed under the Apache License, Version 2.0.
 This repository contains code derived from the following open-source project:
 
 - [ExecuTorch](https://github.com/pytorch/executorch)(BSD License)
+
+------
+
+## Contact Us
+
+If you have any questions, feedback, or would like to join our community, please feel free to reach out.
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="./assets/wechat_qr.png" alt="WeChat Group" width="220"/><br/>
+      <b>WeChat Group</b>
+    </td>
+    <td align="center">
+       <a href="https://github.com/omnimind-ai/OmniInfer-LLM/issues">
+        <img src="https://img.shields.io/badge/GitHub-Issues-blue?logo=github" alt="GitHub Issues"/>
+      </a><br/>
+      <b>Technical Support</b>
+    </td>
+  </tr>
+</table>
+
+---

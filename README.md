@@ -36,7 +36,7 @@ Together, these form a complete pipeline for running models such as **Qwen2.5-VL
 
 ## Android Demo & Architecture
 
-We compared the inference speed differences between ExecuTorch and llama.cpp.
+We compared the inference speed differences between OmniInfer-VLM and llama.cpp.
 
 <table width="100%">
   <tr>

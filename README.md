@@ -28,7 +28,7 @@ This repository ties together:
 
 - **OmniInfer-VLM** — vision encoder (ViT) inference via a custom **llama.cpp NPU backend**
 - **ExecuTorch-based LLM inference** — language decoder with NPU acceleration
-- **OmniInfer-NPU** — shared **NPU operator library** used by OmniInfer-VLM runtimes
+- **OmniOp-NPU** — shared **NPU operator library** used by OmniInfer-VLM runtimes
 
 Together, these form a complete pipeline for running models such as **Qwen2.5-VL** on-device with both image and text understanding.
 
@@ -62,7 +62,7 @@ To balance these needs effectively, OmniInfer-LLM uses:
 
 - **OmniInfer-VLM** (ViT via **llama.cpp + custom NPU backend**)
 - **ExecuTorch NPU backend** for LLM decoding
-- **OmniInfer-NPU** shared library of optimized NPU operators
+- **OmniOp-NPU** shared library of optimized NPU operators
 
 This hybrid approach enables efficient, production-ready VLM inference on real mobile devices.
 
@@ -108,7 +108,7 @@ Responsibilities:
 
 ------
 
-### OmniInfer-NPU
+### OmniOp-NPU
 
 **Purpose:**
 Common NPU operator library and backend support.

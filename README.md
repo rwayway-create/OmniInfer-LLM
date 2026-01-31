@@ -36,7 +36,7 @@ Together, these form a complete pipeline for running models such as **Qwen2.5-VL
 
 ## Android Demo & Architecture
 
-We compared the inference speed differences between OmniInfer-VLM and llama.cpp.
+Below are two examples of running OmniInfer-LLM as a chatbot on the OnePlus Ace5 Pro.
 
 <table width="100%">
   <tr>

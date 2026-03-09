@@ -44,9 +44,16 @@ target_sources(
 )
 
 # qnn_device
-set(HOST_ARCHITECTURE
-    ${CMAKE_CURRENT_LIST_DIR}/htpbackend/${CMAKE_SYSTEM_PROCESSOR}
-)
+# Map system processor to HTP backend directory
+if(WIN32 AND (CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64"))
+  set(HOST_ARCHITECTURE
+      ${CMAKE_CURRENT_LIST_DIR}/htpbackend/arm64-windows
+  )
+else()
+  set(HOST_ARCHITECTURE
+      ${CMAKE_CURRENT_LIST_DIR}/htpbackend/${CMAKE_SYSTEM_PROCESSOR}
+  )
+endif()
 
 target_sources(
   qnn_device
@@ -62,6 +69,17 @@ target_sources(
           ${HOST_ARCHITECTURE}/HtpDeviceCustomConfig.cpp
 )
 
+# Map system processor to IR backend directory
+if(WIN32 AND (CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64"))
+  set(IR_HOST_ARCHITECTURE
+      ${CMAKE_CURRENT_LIST_DIR}/irbackend/arm64-windows
+  )
+else()
+  set(IR_HOST_ARCHITECTURE
+      ${CMAKE_CURRENT_LIST_DIR}/irbackend/${CMAKE_SYSTEM_PROCESSOR}
+  )
+endif()
+
 # qnn_context
 target_sources(
   qnn_context
@@ -73,7 +91,7 @@ target_sources(
     ${CMAKE_CURRENT_LIST_DIR}/htpbackend/HtpContext.cpp
     ${CMAKE_CURRENT_LIST_DIR}/htpbackend/HtpContextCustomConfig.h
     ${HOST_ARCHITECTURE}/HtpContextCustomConfig.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/irbackend/${CMAKE_SYSTEM_PROCESSOR}/IrContext.cpp
+    ${IR_HOST_ARCHITECTURE}/IrContext.cpp
 )
 
 # qnn_backend_cache
@@ -139,5 +157,5 @@ target_sources(
   qnn_dlc_manager
   PUBLIC ${CMAKE_CURRENT_LIST_DIR}/QnnDlcManager.h
   PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/irbackend/${CMAKE_SYSTEM_PROCESSOR}/QnnDlcManager.cpp
+    ${IR_HOST_ARCHITECTURE}/QnnDlcManager.cpp
 )

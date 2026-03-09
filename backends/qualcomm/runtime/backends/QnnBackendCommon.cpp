@@ -38,14 +38,16 @@ void QnnBackend::BackendRegisterOpPackage(
   Qnn_ErrorHandle_t error = QNN_SUCCESS;
   QnnExecuTorchOpPackagePlatform current_platform =
       QnnExecuTorchOpPackagePlatform::UNKNOWN;
-#if defined(__x86_64__)
+#if defined(__x86_64__) || defined(_M_X64)
   current_platform = QnnExecuTorchOpPackagePlatform::X86_64;
 #elif defined(__ANDROID__)
   current_platform = QnnExecuTorchOpPackagePlatform::AARCH64_ANDROID;
+#elif defined(_WIN32) && (defined(_M_ARM64) || defined(__aarch64__))
+  current_platform = QnnExecuTorchOpPackagePlatform::AARCH64_WINDOWS;
 #endif
   if (current_platform == QnnExecuTorchOpPackagePlatform::UNKNOWN)
     QNN_EXECUTORCH_LOG_ERROR(
-        "Failed to detect the platform. Only support x86_64 or android.");
+        "Failed to detect the platform. Supported: x86_64, android, windows arm64.");
   for (const auto op_package_info : *op_packages_infos) {
     if (current_platform != op_package_info->platform() ||
         op_package_manager_.Has(op_package_info->op_package_path()->c_str()))

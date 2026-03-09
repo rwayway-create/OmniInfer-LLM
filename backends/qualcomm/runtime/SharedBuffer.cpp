@@ -5,7 +5,7 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
-#include <dlfcn.h>
+#include <executorch/backends/qualcomm/runtime/backends/DynamicLoading.h>
 #include <executorch/backends/qualcomm/runtime/Logging.h>
 #include <executorch/backends/qualcomm/runtime/SharedBuffer.h>
 
@@ -89,7 +89,7 @@ SharedBuffer& SharedBuffer::GetSharedBufferManager() {
   std::lock_guard<std::mutex> lk(init_mutex_);
   static SharedBuffer shared_buffer_manager;
   if (!shared_buffer_manager.GetInitialize()) {
-#if defined(__aarch64__)
+#if defined(__aarch64__) || (defined(_WIN32) && defined(_M_ARM64))
     Error status = shared_buffer_manager.Load();
 #else
     // For x86_64 platform
@@ -103,7 +103,7 @@ SharedBuffer& SharedBuffer::GetSharedBufferManager() {
 }
 
 SharedBuffer::~SharedBuffer() {
-#if defined(__aarch64__)
+#if defined(__aarch64__) || (defined(_WIN32) && defined(_M_ARM64))
   if (initialize_) {
     SharedBuffer::GetSharedBufferManager().UnLoad();
   }
@@ -162,23 +162,27 @@ bool SharedBuffer::IsAllocated(void* buf) {
 Error SharedBuffer::Load() {
   // On Android, 32-bit and 64-bit libcdsprpc.so can be found at /vendor/lib/
   // and /vendor/lib64/ respectively.
-  lib_cdsp_rpc_ = dlopen("libcdsprpc.so", RTLD_NOW | RTLD_LOCAL);
+#if defined(_WIN32)
+  lib_cdsp_rpc_ = LoadLib("cdsprpc.dll");
+#else
+  lib_cdsp_rpc_ = LoadLib("libcdsprpc.so");
+#endif
   if (lib_cdsp_rpc_ == nullptr) {
     QNN_EXECUTORCH_LOG_ERROR(
-        "Unable to load shared buffer. dlerror(): %s", dlerror());
+        "Unable to load shared buffer. dlerror(): %s", LibError());
     return Error::Internal;
   }
   rpc_mem_alloc_ = reinterpret_cast<RpcMemAllocFn_t>( // NOLINT
-      dlsym(lib_cdsp_rpc_, "rpcmem_alloc"));
+      GetSymbol(lib_cdsp_rpc_, "rpcmem_alloc"));
   rpc_mem_free_ = reinterpret_cast<RpcMemFreeFn_t>( // NOLINT
-      dlsym(lib_cdsp_rpc_, "rpcmem_free"));
+      GetSymbol(lib_cdsp_rpc_, "rpcmem_free"));
   rpc_mem_to_fd_ = reinterpret_cast<RpcMemToFdFn_t>( // NOLINT
-      dlsym(lib_cdsp_rpc_, "rpcmem_to_fd"));
+      GetSymbol(lib_cdsp_rpc_, "rpcmem_to_fd"));
   if (nullptr == rpc_mem_alloc_ || nullptr == rpc_mem_free_ ||
       nullptr == rpc_mem_to_fd_) {
     QNN_EXECUTORCH_LOG_ERROR(
-        "Unable to access symbols in shared buffer. dlerror(): %s", dlerror());
-    dlclose(lib_cdsp_rpc_);
+        "Unable to access symbols in shared buffer. dlerror(): %s", LibError());
+    CloseLib(lib_cdsp_rpc_);
     return Error::Internal;
   }
   return Error::Ok;
@@ -194,9 +198,9 @@ void SharedBuffer::AddCusomMemTensorInfo(const CustomMemTensorInfo& info) {
 }
 
 Error SharedBuffer::UnLoad() {
-  if (dlclose(lib_cdsp_rpc_) != 0) {
+  if (CloseLib(lib_cdsp_rpc_) != 0) {
     QNN_EXECUTORCH_LOG_ERROR(
-        "Unable to close shared buffer. dlerror(): %s", dlerror());
+        "Unable to close shared buffer. dlerror(): %s", LibError());
     return Error::Internal;
   };
   return Error::Ok;

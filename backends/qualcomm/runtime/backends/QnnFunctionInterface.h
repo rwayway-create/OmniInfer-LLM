@@ -7,8 +7,19 @@
  */
 #pragma once
 
+// On Windows, combaseapi.h defines 'interface' as a macro ('struct'),
+// which conflicts with QNN SDK headers using 'interface' as a parameter name.
+#ifdef _WIN32
+#pragma push_macro("interface")
+#undef interface
+#endif
+
 #include "QnnInterface.h"
 #include "Saver/QnnSaver.h"
+
+#ifdef _WIN32
+#pragma pop_macro("interface")
+#endif
 
 #include <utility>
 

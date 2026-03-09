@@ -29,7 +29,11 @@ std::unique_ptr<BackendConfigParameters> QnnBackendFactory::Create(
       const std::string skel_library_dir =
           htp_options->skel_library_dir()->str();
       if (!skel_library_dir.empty()) {
+#ifdef _WIN32
+        _putenv_s("ADSP_LIBRARY_PATH", skel_library_dir.c_str());
+#else
         setenv("ADSP_LIBRARY_PATH", skel_library_dir.c_str(), /*overwrite=*/1);
+#endif
       }
       if (get_option(options->log_level()) >=
           QnnExecuTorchLogLevel::kLogLevelInfo) {

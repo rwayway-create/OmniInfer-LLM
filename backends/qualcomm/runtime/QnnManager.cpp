@@ -576,6 +576,12 @@ Error QnnManager::GetContextBinary(
 }
 
 Error QnnManager::CompileDlc() {
+#ifdef _WIN32
+  // DLC compilation via QnnWrapperUtils is not supported on Windows.
+  // The IR backend path is used instead on Windows ARM64.
+  QNN_EXECUTORCH_LOG_ERROR("CompileDlc is not supported on Windows.");
+  return Error::Internal;
+#else
   Qnn_ErrorHandle_t error;
   auto qnn_dlc_graph_info = qnn_dlc_manager_->GetQnnDlcGraphInfoPtr();
   uint32_t qnn_dlc_graph_info_num = qnn_dlc_manager_->GetQnnDlcGraphInfoNum();
@@ -615,6 +621,7 @@ Error QnnManager::CompileDlc() {
   }
 
   return Error::Ok;
+#endif
 }
 
 Error QnnManager::Compile(

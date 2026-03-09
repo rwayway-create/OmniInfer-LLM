@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#include <dlfcn.h>
 #include <executorch/backends/qualcomm/runtime/backends/QnnSysImplementation.h>
 namespace executorch {
 namespace backends {
@@ -17,24 +16,24 @@ using executorch::runtime::Error;
 Error QnnSystemImplementation::Load() {
   Qnn_ErrorHandle_t error = QNN_SUCCESS;
 
-  void* lib_handle_ = dlopen(lib_path_.c_str(), RTLD_NOW | RTLD_LOCAL);
+  lib_handle_ = LoadLib(lib_path_.c_str());
   if (lib_handle_ == nullptr) {
     QNN_EXECUTORCH_LOG_ERROR(
         "Cannot Open QNN library %s, with error: %s",
         lib_path_.c_str(),
-        dlerror());
+        LibError());
     return Error::Internal;
   }
 
   auto* get_providers =
       // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
       reinterpret_cast<QnnSystemInterfaceGetProvidersFn*>(
-          dlsym(lib_handle_, "QnnSystemInterface_getProviders"));
+          GetSymbol(lib_handle_, "QnnSystemInterface_getProviders"));
   if (get_providers == nullptr) {
     QNN_EXECUTORCH_LOG_ERROR(
         "QnnSystemImplementation::Load Cannot load symbol "
         "QnnSystemInterface_getProviders : %s",
-        dlerror());
+        LibError());
     return Error::Internal;
   }
 
@@ -67,10 +66,10 @@ Error QnnSystemImplementation::Unload() {
   if (lib_handle_ == nullptr)
     return Error::Ok;
 
-  int dlclose_error = dlclose(lib_handle_);
-  if (dlclose_error != 0) {
+  int close_error = CloseLib(lib_handle_);
+  if (close_error != 0) {
     QNN_EXECUTORCH_LOG_WARN(
-        "Failed to close QnnSystem library with error %s", dlerror());
+        "Failed to close QnnSystem library with error %s", LibError());
     return Error::Internal;
   }
 

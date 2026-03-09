@@ -37,6 +37,19 @@ def is_linux_x86() -> bool:
     )
 
 
+def is_windows_arm64() -> bool:
+    """
+    Check if the current platform is Windows ARM64.
+
+    Returns:
+        bool: True if the system is Windows ARM64, False otherwise.
+    """
+    return platform.system().lower() == "windows" and platform.machine().lower() in (
+        "arm64",
+        "aarch64",
+    )
+
+
 #########################
 # Cache directory helper
 #########################
@@ -191,11 +204,13 @@ def _download_qnn_sdk(dst_folder=SDK_DIR) -> Optional[pathlib.Path]:
         f"Qualcomm_AI_Runtime_Community/All/{QNN_VERSION}/v{QNN_VERSION}.zip"
     )
     QAIRT_CONTENT_DIR = f"qairt/{QNN_VERSION}"
-    if not is_linux_x86():
-        logger.info("[QNN] Skipping Qualcomm SDK (only supported on Linux x86).")
-        return None
-    else:
+    if is_linux_x86():
         logger.info("[QNN] Downloading Qualcomm SDK for Linux x86")
+    elif is_windows_arm64():
+        logger.info("[QNN] Downloading Qualcomm SDK for Windows ARM64")
+    else:
+        logger.info("[QNN] Skipping Qualcomm SDK (supported on Linux x86 and Windows ARM64).")
+        return None
 
     dst_folder.mkdir(parents=True, exist_ok=True)
 

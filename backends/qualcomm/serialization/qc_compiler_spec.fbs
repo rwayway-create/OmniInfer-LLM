@@ -38,6 +38,7 @@ enum QcomChipset: int {
   SM8550 = 43,
   SM8650 = 57,
   SM8750 = 69,
+  SC8380XP = 76,
   SSG2115P = 46,
   SSG2125P = 58,
   SXR1230P = 45,
@@ -163,6 +164,7 @@ enum QnnExecuTorchOpPackagePlatform: int {
   UNKNOWN = 0,
   X86_64,
   AARCH64_ANDROID,
+  AARCH64_WINDOWS,
 }
 
 

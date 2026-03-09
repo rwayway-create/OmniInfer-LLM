@@ -41,9 +41,11 @@ endfunction()
 
 # Same as executorch_kernel_link_options but it's for MSVC linker
 function(executorch_msvc_kernel_link_options target_name)
+  # Use TARGET_LINKER_FILE instead of TARGET_FILE so that for SHARED libraries
+  # we get the import library (.lib) rather than the DLL (.dll).
   target_link_options(
     ${target_name} INTERFACE
-    "SHELL:LINKER:/WHOLEARCHIVE:$<TARGET_FILE:${target_name}>"
+    "SHELL:LINKER:/WHOLEARCHIVE:$<TARGET_LINKER_FILE:${target_name}>"
   )
 endfunction()
 

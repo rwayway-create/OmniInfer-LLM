@@ -8,6 +8,7 @@
 #pragma once
 
 #include <executorch/backends/qualcomm/runtime/Logging.h>
+#include <executorch/backends/qualcomm/runtime/backends/DynamicLoading.h>
 #include <executorch/backends/qualcomm/runtime/backends/QnnSysFunctionInterface.h>
 
 #include <string>
@@ -30,7 +31,7 @@ class QnnSystemImplementation {
 
   std::string lib_path_;
   QnnSystemInterface qnn_sys_interface_;
-  void* lib_handle_{nullptr};
+  LibHandle lib_handle_{nullptr};
 };
 } // namespace qnn
 } // namespace backends

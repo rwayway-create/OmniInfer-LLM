@@ -10,7 +10,7 @@
 #include <executorch/backends/qualcomm/runtime/Logging.h>
 #include <executorch/backends/qualcomm/runtime/backends/QnnFunctionInterface.h>
 
-#include <dlfcn.h>
+#include <executorch/backends/qualcomm/runtime/backends/DynamicLoading.h>
 #include <mutex>
 #include <string>
 #include <unordered_map>
@@ -19,8 +19,8 @@ namespace backends {
 namespace qnn {
 
 template <typename Fn>
-Fn loadQnnFunction(void* handle, const char* function_name) {
-  return reinterpret_cast<Fn>(dlsym(handle, function_name)); // NOLINT
+Fn loadQnnFunction(LibHandle handle, const char* function_name) {
+  return reinterpret_cast<Fn>(GetSymbol(handle, function_name)); // NOLINT
 }
 
 class QnnImplementation {
@@ -44,7 +44,7 @@ class QnnImplementation {
       const QnnSaver_Config_t** saver_config);
 
   static executorch::runtime::Error InitBackend(
-      void* const lib_handle,
+      LibHandle const lib_handle,
       const QnnSaver_Config_t** saver_config);
 
   std::string lib_path_;
@@ -53,7 +53,7 @@ class QnnImplementation {
   static std::unordered_map<std::string, BackendIdType> lib_path_to_backend_id_;
   static std::unordered_map<BackendIdType, const QnnInterface_t*>
       loaded_backend_;
-  static std::unordered_map<BackendIdType, void*> loaded_lib_handle_;
+  static std::unordered_map<BackendIdType, LibHandle> loaded_lib_handle_;
   static std::mutex be_init_mutex_;
 };
 } // namespace qnn

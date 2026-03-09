@@ -8,6 +8,7 @@
 #pragma once
 #include <QnnTypes.h>
 #include <executorch/backends/qualcomm/runtime/QnnExecuTorch.h>
+#include <executorch/backends/qualcomm/runtime/backends/DynamicLoading.h>
 #include <executorch/runtime/core/error.h>
 #include <atomic>
 #include <cstdint>
@@ -82,7 +83,7 @@ class SharedBuffer final {
 
   // Pointer to the dlopen'd libcdsprpc.so shared library which contains
   // rpcmem_alloc, rpcmem_free, rpcmem_to_fd APIs
-  void* lib_cdsp_rpc_;
+  LibHandle lib_cdsp_rpc_;
   // Function pointer to rpcmem_alloc
   RpcMemAllocFn_t rpc_mem_alloc_;
   // Function pointer to rpcmem_free

@@ -7,7 +7,9 @@
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+if(NOT MSVC)
+  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
 
 #
 # get path
@@ -39,7 +41,33 @@ if(${ANDROID})
   find_library(android_log log)
 endif()
 
-add_compile_options("-Wall" "-Werror" "-Wno-sign-compare")
+if(MSVC)
+  add_compile_options("/W4" "/WX")
+  # On Windows, minwindef.h defines min/max macros which conflict with
+  # std::numeric_limits<T>::min()/max(). NOMINMAX prevents this.
+  add_compile_definitions(NOMINMAX)
+  # Suppress MSVC deprecation warnings for POSIX functions (strncpy, etc.)
+  add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+  # On Windows, combaseapi.h defines 'interface' as a macro which conflicts
+  # with QNN SDK headers that use 'interface' as a parameter name.
+  # Also suppress warnings that are not relevant for cross-platform porting.
+  add_compile_options(
+    "/wd4100"   # unreferenced formal parameter (C4100)
+    "/wd4189"   # local variable initialized but not referenced
+  )
+  # For clang-cl specifically, suppress additional warnings
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    add_compile_options(
+      "-Wno-unused-parameter"
+      "-Wno-missing-field-initializers"
+      "-Wno-sign-compare"
+      "-Wno-ignored-qualifiers"
+      "-Wno-unknown-argument"
+    )
+  endif()
+else()
+  add_compile_options("-Wall" "-Werror" "-Wno-sign-compare")
+endif()
 add_compile_definitions(C10_USING_CUSTOM_GENERATED_MACROS)
 
 # GNU emit wanring for ignored attributes Unfortunately, we use [[maybe_unused]]
@@ -50,11 +78,13 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-  # strip symbols
-  add_link_options("-s")
+  if(NOT MSVC)
+    # strip symbols
+    add_link_options("-s")
 
-  # --gc-sections is added by torch.
-  add_compile_options("-O3" "-ffunction-sections" "-fdata-sections" "-frtti")
+    # --gc-sections is added by torch.
+    add_compile_options("-O3" "-ffunction-sections" "-fdata-sections" "-frtti")
+  endif()
 endif()
 
 include_directories(
@@ -185,9 +215,11 @@ target_link_libraries(
   PRIVATE qnn_executorch_header qnn_schema qnn_manager executorch_core
           extension_tensor qnn_backend_options
 )
-set_target_properties(
-  qnn_executorch_backend PROPERTIES LINK_FLAGS "-Wl,-rpath='$ORIGIN'"
-)
+if(NOT MSVC)
+  set_target_properties(
+    qnn_executorch_backend PROPERTIES LINK_FLAGS "-Wl,-rpath='$ORIGIN'"
+  )
+endif()
 target_link_libraries(utils PRIVATE qnn_executorch_logging)
 target_link_libraries(
   shared_buffer PRIVATE qnn_executorch_logging ${CMAKE_DL_LIBS}
@@ -260,9 +292,13 @@ if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64")
 
   if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     # need to allow exceptions in pybind
-    set(_pybind_compile_options -Wno-deprecated-declarations -fPIC -frtti
-                                -fexceptions
-    )
+    if(MSVC)
+      set(_pybind_compile_options /EHsc)
+    else()
+      set(_pybind_compile_options -Wno-deprecated-declarations -fPIC -frtti
+                                  -fexceptions
+      )
+    endif()
     target_compile_options(
       PyQnnManagerAdaptor PUBLIC ${_pybind_compile_options}
     )

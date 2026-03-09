@@ -44,6 +44,7 @@ class QcomChipset(IntEnum):
     SM8550 = 43  # v73
     SM8650 = 57  # v75
     SM8750 = 69  # v79
+    SC8380XP = 76  # v79 (Snapdragon X Elite)
     SSG2115P = 46  # v73
     SSG2125P = 58  # v73
     SXR1230P = 45  # v73
@@ -69,6 +70,7 @@ _soc_info_table = {
     QcomChipset.SXR1230P: SocInfo(QcomChipset.SXR1230P, HtpInfo(HtpArch.V73, 2)),
     QcomChipset.SXR2230P: SocInfo(QcomChipset.SXR2230P, HtpInfo(HtpArch.V69, 8)),
     QcomChipset.SXR2330P: SocInfo(QcomChipset.SXR2330P, HtpInfo(HtpArch.V79, 8)),
+    QcomChipset.SC8380XP: SocInfo(QcomChipset.SC8380XP, HtpInfo(HtpArch.V79, 8)),
 }
 
 
@@ -157,6 +159,7 @@ class QnnExecuTorchOpPackagePlatform(IntEnum):
     UNKNOWN = 0
     X86_64 = 1
     AARCH64_ANDROID = 2
+    AARCH64_WINDOWS = 3
 
 
 @dataclass

@@ -47,6 +47,8 @@ class ModelType(str, Enum):
     lfm2_350m = "lfm2_350m"
     lfm2_700m = "lfm2_700m"
     lfm2_1_2b = "lfm2_1_2b"
+    qwen3_5_0_8b = "qwen3_5_0_8b"
+    granite4_tiny = "granite4_tiny"
 
 
 class PreqMode(str, Enum):

@@ -215,6 +215,11 @@ target_link_libraries(
   PRIVATE qnn_executorch_header qnn_schema qnn_manager executorch_core
           extension_tensor qnn_backend_options
 )
+# Export QnnExecuTorch API symbols on Windows
+if(WIN32)
+  target_compile_definitions(qnn_executorch_backend PRIVATE QNN_EXECUTORCH_BACKEND_BUILDING)
+  target_compile_definitions(qnn_manager PRIVATE QNN_EXECUTORCH_BACKEND_BUILDING)
+endif()
 if(NOT MSVC)
   set_target_properties(
     qnn_executorch_backend PROPERTIES LINK_FLAGS "-Wl,-rpath='$ORIGIN'"

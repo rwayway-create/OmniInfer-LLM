@@ -78,6 +78,8 @@ target_include_directories(
 )
 
 target_compile_options(qnn_llama_runner PUBLIC ${_common_compile_options})
-set_target_properties(
-  qnn_llama_runner PROPERTIES LINK_FLAGS "-Wl,-rpath='$ORIGIN'"
-)
+if(NOT WIN32)
+  set_target_properties(
+    qnn_llama_runner PROPERTIES LINK_FLAGS "-Wl,-rpath='$ORIGIN'"
+  )
+endif()

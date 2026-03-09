@@ -21,6 +21,17 @@
 #define QNN_RUNTIME_HTP_PERFORMANCE_MODE "qnn_runtime_htp_performance_mode"
 #define QNN_RUNTIME_PROFILE_LEVEL "qnn_runtime_profile_level"
 
+// Windows DLL export/import
+#ifdef _WIN32
+  #ifdef QNN_EXECUTORCH_BACKEND_BUILDING
+    #define QNN_EXECUTORCH_API __declspec(dllexport)
+  #else
+    #define QNN_EXECUTORCH_API __declspec(dllimport)
+  #endif
+#else
+  #define QNN_EXECUTORCH_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
@@ -63,18 +74,18 @@ struct CustomMemTensorInfo {
 /// alignment as MemoryAllocator::kDefaultAlignment.
 /// See runtime/core/memory_allocator.h. The function returns a valid pointer
 /// if allocation is successful.
-void* QnnExecuTorchAllocCustomMem(size_t bytes, size_t alignment);
+QNN_EXECUTORCH_API void* QnnExecuTorchAllocCustomMem(size_t bytes, size_t alignment);
 
 /// Add tensor to custom memory with custom type descriptor. Create memory
 /// handle to tensor wrapper during execution
-void QnnExecuTorchAddCustomMemTensorAddr(void* tensor_addr, void* custom_mem);
+QNN_EXECUTORCH_API void QnnExecuTorchAddCustomMemTensorAddr(void* tensor_addr, void* custom_mem);
 
 /// Add custom mem tensor info. Help to bring forward the memHandle creating
 /// time from execution to initialization.
-void QnnExecuTorchAddCustomMemTensorInfo(const CustomMemTensorInfo& info);
+QNN_EXECUTORCH_API void QnnExecuTorchAddCustomMemTensorInfo(const CustomMemTensorInfo& info);
 
 /// Free the allocated shared memory.
-void QnnExecuTorchFreeCustomMem(void* buffer_ptr);
+QNN_EXECUTORCH_API void QnnExecuTorchFreeCustomMem(void* buffer_ptr);
 
 #ifdef __cplusplus
 }

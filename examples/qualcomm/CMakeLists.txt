@@ -32,7 +32,11 @@ find_package(executorch CONFIG REQUIRED)
 target_compile_options(executorch INTERFACE -DET_EVENT_TRACER_ENABLED)
 find_package(gflags REQUIRED)
 
-set(_common_compile_options -Wno-deprecated-declarations -fPIC)
+if(MSVC)
+  set(_common_compile_options /wd4996)
+else()
+  set(_common_compile_options -Wno-deprecated-declarations -fPIC)
+endif()
 
 #
 # The `_<target>_srcs` lists are defined by executorch_load_build_variables.

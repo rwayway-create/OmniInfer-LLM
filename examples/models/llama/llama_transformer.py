@@ -259,7 +259,13 @@ def construct_transformer(model_args: ModelArgs) -> Transformer:
     cls = ATTENTION_REGISTRY[model_args.attention_type]
     for layer_id in range(model_args.n_layers):
         # hybrid models define layer_types
-        if model_args.layer_types and model_args.layer_types[layer_id] == "conv":
+        layer_type = (
+            model_args.layer_types[layer_id]
+            if model_args.layer_types
+            else "full_attention"
+        )
+
+        if layer_type == "conv":
             from executorch.examples.models.lfm2.short_conv import ShortConvBlock
 
             assert (
@@ -270,6 +276,44 @@ def construct_transformer(model_args: ModelArgs) -> Transformer:
                     dim=model_args.dim,
                     hidden_dim=model_args.hidden_dim,
                     norm_eps=model_args.norm_eps,
+                )
+            )
+        elif layer_type == "deltanet":
+            from executorch.examples.models.qwen3_5.gated_deltanet import (
+                GatedDeltaNetBlock,
+            )
+
+            assert (
+                model_args.hidden_dim is not None
+            ), "`hidden_dim` must be set in ModelArgs to construct a GatedDeltaNetBlock."
+            layers.append(
+                GatedDeltaNetBlock(
+                    dim=model_args.dim,
+                    hidden_dim=model_args.hidden_dim,
+                    n_heads=getattr(model_args, "linear_n_heads", 16),
+                    key_head_dim=getattr(model_args, "linear_key_head_dim", 128),
+                    value_head_dim=getattr(model_args, "linear_value_head_dim", 128),
+                    conv_kernel=getattr(model_args, "linear_conv_kernel", 4),
+                    norm_eps=model_args.norm_eps,
+                )
+            )
+        elif layer_type == "mamba2":
+            from executorch.examples.models.granite4.mamba2_block import Mamba2Block
+
+            layers.append(
+                Mamba2Block(
+                    dim=model_args.dim,
+                    d_state=getattr(model_args, "mamba_d_state", 128),
+                    d_conv=getattr(model_args, "mamba_d_conv", 4),
+                    expand=getattr(model_args, "mamba_expand", 2),
+                    n_heads=getattr(model_args, "mamba_n_heads", 48),
+                    n_groups=getattr(model_args, "mamba_n_groups", 1),
+                    d_head=getattr(model_args, "mamba_d_head", 64),
+                    chunk_size=getattr(model_args, "mamba_chunk_size", 256),
+                    conv_bias=getattr(model_args, "mamba_conv_bias", True),
+                    proj_bias=getattr(model_args, "mamba_proj_bias", False),
+                    norm_eps=model_args.norm_eps,
+                    residual_multiplier=getattr(model_args, "residual_multiplier", 1.0),
                 )
             )
         else:

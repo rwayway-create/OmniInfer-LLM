@@ -125,6 +125,34 @@ class ModelArgs:
     # Hybrid models can have layer types different from attention
     layer_types: Optional[list] = None
 
+    # Qwen3.5 Gated DeltaNet parameters
+    linear_n_heads: int = 16
+    linear_key_head_dim: int = 128
+    linear_value_head_dim: int = 128
+    linear_conv_kernel: int = 4
+
+    # Granite 4.0 Mamba2 SSM parameters
+    mamba_d_state: int = 128
+    mamba_d_conv: int = 4
+    mamba_expand: int = 2
+    mamba_n_heads: int = 48
+    mamba_n_groups: int = 1
+    mamba_d_head: int = 64
+    mamba_chunk_size: int = 256
+    mamba_conv_bias: bool = True
+    mamba_proj_bias: bool = False
+
+    # Granite 4.0 MoE parameters
+    num_experts: int = 8
+    num_activated_experts: int = 2
+    shared_intermediate_size: Optional[int] = None
+
+    # Scaling multipliers (Granite 4.0)
+    residual_multiplier: float = 1.0
+    embedding_multiplier: float = 1.0
+    attention_multiplier: float = 1.0
+    logits_scaling: float = 1.0
+
     def __post_init__(self):
         if self.n_kv_heads is None:
             self.n_kv_heads = self.n_heads
